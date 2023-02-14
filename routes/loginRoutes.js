@@ -13,7 +13,7 @@ authenticaton.use(express.json());
 authenticaton.post("/", async (req, res) => {
   try {
     const userinfo = req.body;
-    const { name, email, password } = userinfo;
+    const { name, email, password,porfilepic,role } = userinfo;
     const enryptedpass = await bcrypt.hash(password, 10);
     const alreayExist = await User.findOne({ email: email });
     if (alreayExist) {
@@ -23,6 +23,8 @@ authenticaton.post("/", async (req, res) => {
         name,
         email,
         password: enryptedpass,
+        porfilepic,
+        role
       });
 
       user.save((err) => {
@@ -65,7 +67,6 @@ authenticaton.post("/user-info", async (req, res) => {
     const user = jwt.verify(token, process.env.JWT_SECRET)
     const userEmail = user.email;
     const userdata = await User.findOne({email:userEmail})
-    console.log(userdata)
     if(userdata){
         res.status(200).send({ message: "successfull", data: userdata });
     }else{
@@ -75,5 +76,35 @@ authenticaton.post("/user-info", async (req, res) => {
 
   } catch (e) {}
 });
+
+authenticaton.put("/upload-profile", async (req, res) => {
+  try {
+    const id =  req.query.id;
+    const {profile} = req.body;
+    await User.updateOne({_id:id}, {
+      $set:{
+        porfilepic:profile
+      }
+     },
+     async(err, data)=>{
+      if(err){
+        res.send({message: "update failed"})
+      } else{
+        const user = await User.findOne({_id:id})
+        res.send({message:"update complete", data:user})
+      }
+     }
+     
+     )
+    
+    
+   
+  } catch (err) {
+  
+  }
+});
+
+
+
 
 module.exports = authenticaton;

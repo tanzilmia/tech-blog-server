@@ -5,7 +5,9 @@ const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
 require("dotenv").config();
-const userAuth = require("./routes/loginRoutes")
+const userAuth = require("./routes/loginRoutes");
+const adminRoute = require("./routes/adminroute");
+const author = require("./routes/authorAndAdmin");
 
 // middleware
 app.use(cors());
@@ -26,6 +28,8 @@ mongoose
 // user authentication 
 
 app.use("/authentication", userAuth )
+app.use("/admin", adminRoute)
+app.use("/author", author)
 
 
 

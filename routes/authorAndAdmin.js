@@ -4,12 +4,14 @@ const { default: mongoose } = require("mongoose");
 const createpost = require("../Scemma/createPost");
 const CreatePost = new mongoose.model("CreatePost", createpost);
 const jwt = require("jsonwebtoken");
-
 require("dotenv").config();
 
 const verifyToken = (req, res, next) => {
   try {
     const { authorization } = req.headers;
+    if(!authorization){
+      res.status(403).send({ message: "UnAuthrize Access" });
+    }
     if (authorization) {
       const token = authorization.split(" ")[1];
       const decoded = jwt.verify(token, `${process.env.JWT_SECRET}`);

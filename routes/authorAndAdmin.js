@@ -47,10 +47,71 @@ author.post("/create-post", verifyToken, async (req, res) => {
   }
 });
 
+// delete post
+
+author.delete("/delete-post", async (req,res)=>{
+  try {
+    const result = await CreatePost.deleteOne({ _id: req.query.id });
+    if (result.deletedCount === 1) {
+      const updatePosts = await CreatePost.find({});
+      res.send(updatePosts);
+    } else {
+      res.send({ message: "Not Success Delete History" });
+    }
+  } catch (err) {
+    res.send({ message: "Error occurred while deleting user history" });
+  }
+
+})
+
+
+
+author.put("/edite-post", verifyToken, async (req, res) => {
+  try {
+    const Updatepost = req.body;
+    const {
+      title,
+      article,
+      date,
+      category,
+      thumbnail,
+      _id
+    }  = Updatepost
+    
+    await CreatePost.updateOne(
+      { _id: _id },
+      {
+        $set: {
+      title:title,
+      article:article,
+      date:date,
+      category:category,
+      thumbnail:thumbnail,
+        },
+      }
+    );
+    res.send({message:"Update Complete"});
+  } catch (e) {
+    res.send({ message: e.message });
+  }
+});
+
+
+
 author.get("/my-posts", verifyToken, async (req, res) => {
     try {
       const email = req.query.email;
       const mypost = await CreatePost.find({ email: email });
+      res.send({ message: "success", posts: mypost });
+    } catch (e) {
+      res.send({ message: "data not found" });
+    }
+  });
+  
+author.get("/edite-post/:id", async (req, res) => {
+    try {
+      const id = req.params.id;
+      const mypost = await CreatePost.findOne({ _id: id });
       res.send({ message: "success", posts: mypost });
     } catch (e) {
       res.send({ message: "data not found" });

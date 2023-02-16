@@ -114,6 +114,8 @@ adminRoute.put("/make-user", verifyToken, async (req, res) => {
     res.send({ message: e.message });
   }
 });
+
+
 adminRoute.put("/make-autor", verifyToken, async (req, res) => {
   try {
     const {id} = req.body;
@@ -131,6 +133,8 @@ adminRoute.put("/make-autor", verifyToken, async (req, res) => {
     res.send({ message: e.message });
   }
 });
+
+
 
 adminRoute.delete("/delete-user", verifyToken, async (req, res) => {
   try {

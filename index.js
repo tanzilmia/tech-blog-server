@@ -8,6 +8,7 @@ require("dotenv").config();
 const userAuth = require("./routes/loginRoutes");
 const adminRoute = require("./routes/adminroute");
 const author = require("./routes/authorAndAdmin");
+const userroute = require("./routes/userRoute");
 
 // middleware
 app.use(cors());
@@ -30,9 +31,7 @@ mongoose
 app.use("/authentication", userAuth )
 app.use("/admin", adminRoute)
 app.use("/author", author)
-
-
-
+app.use("/", userroute)
 
 // testing
 app.get("/", (req, res) => {

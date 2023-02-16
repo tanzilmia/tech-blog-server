@@ -5,6 +5,8 @@ const settingsScema = require("../Scemma/Settting");
 const categoryScema = require("../Scemma/addCategory");
 const Setting = new mongoose.model("Setting",settingsScema);
 const Category = new mongoose.model("Category",categoryScema);
+const createpost = require("../Scemma/createPost");
+const CreatePost = new mongoose.model("CreatePost", createpost);
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const userscema = require("../Scemma/userInfo");
@@ -15,15 +17,19 @@ const User = new mongoose.model("User", userscema);
 const verifyAdmin = (req,res,next)=>{
     try{
         const {authorization} = req.headers
+        if(!authorization){
+             res.status(403).send({message:"UnAuthrize Access"})
+             next()
+        }
          if(authorization){
             const token = authorization.split(' ')[1]
             const decoded = jwt.verify(token, `${process.env.JWT_SECRET}`) 
             const {email} = decoded
-            console.log(req.query.email);
             if(email === req.query.email){
                 next()
             }else{
-                res.status(403).send({message:"UnAuthrize"})
+                res.status(403).send({message:"Token is not Valid"})
+                next()
             }
          }
        
@@ -34,6 +40,14 @@ const verifyAdmin = (req,res,next)=>{
 
 
 
+// delete post
+
+adminRoute.delete("/delete-post", verifyAdmin, async(req,res)=>{
+
+    res.send({message: `${req.query.id}`},)
+})
+
+// add category
 adminRoute.post("/add-category", verifyAdmin, async (req, res) => {
     try {
       const { category } = req.body;
@@ -51,6 +65,7 @@ adminRoute.post("/add-category", verifyAdmin, async (req, res) => {
     }
   });
 
+// get categories
 adminRoute.get("/categories", async(req,res)=>{
     try{
 
@@ -80,6 +95,20 @@ adminRoute.get("/all-user", verifyAdmin, async(req,res)=>{
 
     }catch(e){}
 })
-  
+// get all posts
+adminRoute.get("/all-posts", verifyAdmin, async(req,res)=>{
+    try{
+
+        CreatePost.find({}, (err,data)=>{
+            if(err){
+                res.status(401).send({message:"data Not Found"})
+            }
+            else{
+                res.send(data)
+            }
+        })
+
+    }catch(e){}
+})
 
 module.exports = adminRoute;

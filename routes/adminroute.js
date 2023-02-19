@@ -36,10 +36,74 @@ const verifyToken = async (req, res, next) => {
   };
   
 
+
+  //  get single author posts 
+
+  adminRoute.get("/user-posts/:id", async(req,res)=>{
+    try{
+      const id = req.params.id;
+      const user = await User.findOne({_id:id});
+      const email = user.email;
+      const data = await CreatePost.find({email:email})
+      res.send({message:"success", data:data})
+
+    }catch(e){
+     
+    }
+
+  })
+
+// make fetured post 
+
+adminRoute.put("/make-featured", verifyToken, async(req,res)=>{
+  try {
+    const {id} = req.body;
+    await CreatePost.updateOne(
+      { _id: id },
+      {
+        $set: {
+          featuresPost: true,
+        },
+      }
+    );
+    const updatposts = await CreatePost.find({});
+    res.send({message: "success", posts:updatposts});
+  } catch (e) {
+    res.send({ message: e.message });
+  }
+})
+adminRoute.put("/make-normalpost", verifyToken, async(req,res)=>{
+  try {
+    const {id} = req.body;
+    await CreatePost.updateOne(
+      { _id: id },
+      {
+        $set: {
+          featuresPost: false,
+        },
+      }
+    );
+    const updatposts = await CreatePost.find({});
+    res.send({message: "success", posts:updatposts});
+  } catch (e) {
+    res.send({ message: e.message });
+  }
+})
+
 // delete post
 
 adminRoute.delete("/delete-post", verifyToken, async (req, res) => {
-  res.send({ message: `${req.query.id}` });
+  try {
+    const result = await CreatePost.deleteOne({ _id: req.query.id });
+    if (result.deletedCount === 1) {
+      const updatePosts = await CreatePost.find({});
+      res.send({message:"success", posts:updatePosts});
+    } else {
+      res.send({ message: "Not Success Delete History" });
+    }
+  } catch (err) {
+    res.send({ message: "Error occurred while deleting user history" });
+  }
 });
 
 // add category

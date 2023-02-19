@@ -49,12 +49,12 @@ author.post("/create-post", verifyToken, async (req, res) => {
 
 // delete post
 
-author.delete("/delete-post", async (req,res)=>{
+author.delete("/delete-post", verifyToken, async (req,res)=>{
   try {
     const result = await CreatePost.deleteOne({ _id: req.query.id });
     if (result.deletedCount === 1) {
       const updatePosts = await CreatePost.find({});
-      res.send(updatePosts);
+      res.send({message:"success", posts:updatePosts});
     } else {
       res.send({ message: "Not Success Delete History" });
     }

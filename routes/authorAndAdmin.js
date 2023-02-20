@@ -4,6 +4,8 @@ const { default: mongoose } = require("mongoose");
 const createpost = require("../Scemma/createPost");
 const CreatePost = new mongoose.model("CreatePost", createpost);
 const jwt = require("jsonwebtoken");
+const userscema = require("../Scemma/userInfo");
+const User = new mongoose.model("User", userscema);
 require("dotenv").config();
 
 const verifyToken = (req, res, next) => {
@@ -52,8 +54,9 @@ author.post("/create-post", verifyToken, async (req, res) => {
 author.delete("/delete-post", verifyToken, async (req,res)=>{
   try {
     const result = await CreatePost.deleteOne({ _id: req.query.id });
+    
     if (result.deletedCount === 1) {
-      const updatePosts = await CreatePost.find({});
+      const updatePosts = await CreatePost.find({email:req.query.email});
       res.send({message:"success", posts:updatePosts});
     } else {
       res.send({ message: "Not Success Delete History" });
@@ -97,16 +100,29 @@ author.put("/edite-post", verifyToken, async (req, res) => {
 });
 
 
-
 author.get("/my-posts", verifyToken, async (req, res) => {
-    try {
-      const email = req.query.email;
-      const mypost = await CreatePost.find({ email: email });
-      res.send({ message: "success", posts: mypost });
-    } catch (e) {
-      res.send({ message: "data not found" });
-    }
-  });
+  try {
+    const email = req.query.email;
+    const mypost = await CreatePost.find({ email: email })
+      .sort({ date: -1 })
+      .exec();
+    res.send({ message: "success", posts: mypost });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: "Server error" });
+  }
+});
+
+
+// author.get("/my-posts", verifyToken, async (req, res) => {
+//     try {
+//       const email = req.query.email;
+//       const mypost = await CreatePost.find({ email: email });
+//       res.send({ message: "success", posts: mypost });
+//     } catch (e) {
+//       res.send({ message: "data not found" });
+//     }
+//   });
   
 author.get("/edite-post/:id", async (req, res) => {
     try {

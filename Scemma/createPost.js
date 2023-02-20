@@ -8,7 +8,9 @@ const CreatePost = new mongoose.Schema({
       name:String,
       thumbnail:String,
       like: Number,
-      featuresPost: Boolean
+      featuresPost: Boolean,
+      feturedTime: String,
+      authorPic:String
 })
 
 module.exports = CreatePost

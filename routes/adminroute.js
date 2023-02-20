@@ -23,7 +23,6 @@ const verifyToken = async (req, res, next) => {
         const token = authorization.split(" ")[1];
         const decoded = await jwt.verify(token, `${process.env.JWT_SECRET}`);
         const { email } = decoded;
-        console.log(req.query.email);
         if (email === req.query.email) {
           next();
         } else {
@@ -53,16 +52,19 @@ const verifyToken = async (req, res, next) => {
 
   })
 
+
+
 // make fetured post 
 
 adminRoute.put("/make-featured", verifyToken, async(req,res)=>{
   try {
-    const {id} = req.body;
+    const {id,date} = req.body;
     await CreatePost.updateOne(
       { _id: id },
       {
         $set: {
           featuresPost: true,
+          feturedTime:date
         },
       }
     );
@@ -74,12 +76,13 @@ adminRoute.put("/make-featured", verifyToken, async(req,res)=>{
 })
 adminRoute.put("/make-normalpost", verifyToken, async(req,res)=>{
   try {
-    const {id} = req.body;
+    const {id,date} = req.body;
     await CreatePost.updateOne(
       { _id: id },
       {
         $set: {
           featuresPost: false,
+          feturedTime:date
         },
       }
     );
@@ -149,17 +152,36 @@ adminRoute.get("/all-user", verifyToken, async (req, res) => {
   } catch (e) {}
 });
 // get all posts
+
 adminRoute.get("/all-posts", verifyToken, async (req, res) => {
   try {
-    CreatePost.find({}, (err, data) => {
-      if (err) {
-        res.status(401).send({ message: "data Not Found" });
-      } else {
-        res.send(data);
-      }
-    });
-  } catch (e) {}
+    const posts = await CreatePost.find({})
+      .sort({ date: -1})
+      .exec();
+
+    if (posts.length === 0) {
+      res.status(404).send({ message: "No posts found" });
+    } else {
+      res.send(posts);
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: "Server error" });
+  }
 });
+
+
+// adminRoute.get("/all-posts", verifyToken, async (req, res) => {
+//   try {
+//     CreatePost.find({},(err, data) => {
+//       if (err) {
+//         res.status(401).send({ message: "data Not Found" });
+//       } else {
+//         res.send(data);
+//       }
+//     });
+//   } catch (e) {}
+// });
 
 adminRoute.put("/make-user", verifyToken, async (req, res) => {
   try {

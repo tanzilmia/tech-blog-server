@@ -13,7 +13,7 @@ userroute.get("/posts", async(req,res)=>{
       const limit = 6; // number of posts to retrieve in a single page
       const page = req.query.page || 1; // current page (default: 1)
       const offset = (page - 1) * limit; // offset to skip posts in previous pages
-      const posts = await CreatePost.find().skip(offset).limit(limit);
+      const posts = await CreatePost.find().skip(offset).sort({ date: -1 }).limit(limit);
       const count = await CreatePost.countDocuments();
 
       res.send({
@@ -73,7 +73,7 @@ userroute.get("/sidepost", async(req,res)=>{
 userroute.get('/unique-posts', async (req, res) => {
     try {
         const uniqueCategories = await CreatePost.aggregate([
-          { $sort: { date: 1 } },
+          { $sort: { date: -1 } },
           { $group: { _id: "$category", document: { $first: "$$ROOT" } } },
           { $replaceRoot: { newRoot: "$document" } }
         ]);
@@ -98,15 +98,16 @@ userroute.get('/single-post/:id', async (req, res) => {
 
 //   each category data  
 
-userroute.get('/posts/:category', async (req, res) => {
-    try {
-        const posts = await CreatePost.find({category:req.params.category})
-        res.send(posts)
-          
-      } catch (err) {
-        res.status(500).json({ message: err.message });
-      }
-  });
+userroute.get('/related-post', async (req, res) => {
+  try {
+      const category = req.query.category;
+      const posts = await CreatePost.find({category:category}).sort({date: -1}).limit(4);
+      res.send(posts);
+  } catch (err) {
+      res.status(500).json({ message: err.message }); 
+  }
+});
+
 
 
 module.exports = userroute;

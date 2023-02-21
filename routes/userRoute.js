@@ -3,9 +3,22 @@ const { default: mongoose } = require("mongoose");
 const userroute = express.Router();
 const createpost = require("../Scemma/createPost");
 const CreatePost = new mongoose.model("CreatePost", createpost);
+const userscema = require("../Scemma/userInfo");
+const User = new mongoose.model("User", userscema);
 
 
 
+userroute.get("/all-author", async (req, res) => {
+  try {
+    User.find({role:"author"}, (err, data) => {
+      if (err) {
+        res.status(401).send({ message: "data Not Found" });
+      } else {
+        res.send(data);
+      }
+    });
+  } catch (e) {}
+});
 
 
 userroute.get("/posts", async(req,res)=>{

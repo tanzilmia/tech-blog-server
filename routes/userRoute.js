@@ -5,7 +5,8 @@ const createpost = require("../Scemma/createPost");
 const CreatePost = new mongoose.model("CreatePost", createpost);
 const userscema = require("../Scemma/userInfo");
 const User = new mongoose.model("User", userscema);
-
+const categoryScema = require("../Scemma/addCategory");
+const Category = new mongoose.model("Category", categoryScema);
 
 
 userroute.get("/all-author", async (req, res) => {
@@ -19,8 +20,6 @@ userroute.get("/all-author", async (req, res) => {
     });
   } catch (e) {}
 });
-
-
 userroute.get("/posts", async(req,res)=>{
   try{
       const limit = 6; // number of posts to retrieve in a single page
@@ -38,7 +37,6 @@ userroute.get("/posts", async(req,res)=>{
       res.status(500).send({ message: "Internal server error" });
   }
 });
-
 
 userroute.get("/featured-posts", async(req,res)=>{
   try{
@@ -58,8 +56,6 @@ userroute.get("/featured-posts", async(req,res)=>{
   }
 })
 
-
-
 userroute.get("/sidepost", async(req,res)=>{
   try{
     const post = await CreatePost.find({})
@@ -77,10 +73,6 @@ userroute.get("/sidepost", async(req,res)=>{
     res.status(500).send({ message: "Server error" });
   }
 })
-
-
-
-
 
 // get unique categorys single post
 userroute.get('/unique-posts', async (req, res) => {
@@ -118,6 +110,19 @@ userroute.get('/related-post', async (req, res) => {
       res.send(posts);
   } catch (err) {
       res.status(500).json({ message: err.message }); 
+  }
+});
+
+userroute.get('/category-posts-data/:id', async (req, res) => {
+  try{
+
+    const id = req.params.id
+    const category = await Category.findOne({_id:id})
+    const posts = await CreatePost.find({category:category.category}).sort({date: -1});
+    res.send(posts)
+
+  }catch(err) {
+    res.status(500).json({message: err.message})
   }
 });
 

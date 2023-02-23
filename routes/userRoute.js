@@ -73,6 +73,29 @@ userroute.get("/sidepost", async(req,res)=>{
     res.status(500).send({ message: "Server error" });
   }
 })
+userroute.get("/search-items", async (req, res) => {
+  try {
+    const searchtext = req.query.searchtext;
+    console.log(searchtext);
+    const post = await CreatePost.find({
+      title: { $regex: searchtext, $options: "i" },
+    }).sort({ date: -1 });
+    if (post.length > 0) {
+      res.send(post);
+    } else {
+      res.status(404).send({ message: "Post not found" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: "Server error" });
+  }
+});
+
+
+
+
+
+
 
 // get unique categorys single post
 userroute.get('/unique-posts', async (req, res) => {

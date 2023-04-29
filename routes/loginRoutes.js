@@ -35,7 +35,9 @@ authenticaton.post("/", async (req, res) => {
         }
       });
     }
-  } catch (e) {}
+  } catch (e) {
+    res.send({message: "custome error"})
+  }
 });
 
 authenticaton.post("/login", async (req, res) => {
@@ -58,7 +60,9 @@ authenticaton.post("/login", async (req, res) => {
     } else {
       res.send({ message: "user not Valid" });
     }
-  } catch (e) {}
+  } catch (e) {
+    res.send({message: "custome error"})
+  }
 });
 
 authenticaton.post("/user-info", async (req, res) => {
